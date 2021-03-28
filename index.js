@@ -12,7 +12,6 @@ const {
 
 const bot = new Discord.Client()
 
-
 const messageHandler = async ({ content, member, channel }) => {
   if (content === '!jungle help') return channel.send(`
     ℹ Pour ajouter des sons, rendez-vous ici : https://jungle-soundbot.netlify.app`
