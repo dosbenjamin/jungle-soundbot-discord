@@ -20,7 +20,7 @@ const messageHandler = async ({ content, member, channel }) => {
   if(content === '!jungle list') {
     const apiResponse = await fetch(`${ API_URL }`)
     const json = await apiResponse.json()
-    const sounds = json.map({ command } => command)
+    const sounds = json.map(({ command }) => command)
 
     return channel.send(
       `Liste des sons disponibles : \n${ sounds.join('\n') }`
