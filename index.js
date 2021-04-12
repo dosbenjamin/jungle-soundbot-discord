@@ -33,15 +33,16 @@ const messageHandler = async ({ content, member, channel }) => {
 
   if (!json.length) return channel.send('Aucun résulat 😥')
 
-  const [{ url, author, command }] = json
-  const cloudinaryResponse = await fetch(url)
-  const buffer = await cloudinaryResponse.buffer()
-  fs.writeFileSync('audio.ogg', buffer)
+  // const [{ url, author, command }] = json
+  // const cloudinaryResponse = await fetch(url)
+  // const buffer = await cloudinaryResponse.buffer()
+  // fs.writeFileSync('audio.ogg', buffer)
 
-  const connection = await member.voice.channel.join()
-  const dispatcher = connection.play('./audio.ogg', { volume: 1 })
+  // const connection = await member.voice.channel.join()
+  // const dispatcher = connection.play('./audio.ogg', { volume: 1 })
 
-  channel.send(`▶ Son en cours ➜ **${ command }** ajouté par **${ author }**`)
+  // channel.send(`▶ Son en cours ➜ **${ command }** ajouté par **${ author }**`)
+  channel.send(`J'ai bien trouvé le son, mais je fais grève. Ciao!`)
 }
 
 bot.on('message', message => message.content
