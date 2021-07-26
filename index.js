@@ -13,8 +13,8 @@ const {
 const bot = new Discord.Client()
 
 const messageHandler = async ({ content, member, channel }) => {
-  const playSound = async audio => {
-    const [{ url, author, command }] = audio
+  const playSound = async sound => {
+    const { url, author, command } = sound
     const cloudinaryResponse = await fetch(url)
     const buffer = await cloudinaryResponse.buffer()
     fs.writeFileSync('audio.ogg', buffer)
@@ -52,7 +52,7 @@ const messageHandler = async ({ content, member, channel }) => {
 
   if (!json.length) return channel.send('Aucun résulat 😥')
 
-  playSound(json)
+  playSound(json[0])
 }
 
 bot.on('message', message => message.content
