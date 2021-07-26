@@ -13,6 +13,18 @@ const {
 const bot = new Discord.Client()
 
 const messageHandler = async ({ content, member, channel }) => {
+  const playSound = async audio => {
+    const [{ url, author, command }] = audio
+    const cloudinaryResponse = await fetch(url)
+    const buffer = await cloudinaryResponse.buffer()
+    fs.writeFileSync('audio.ogg', buffer)
+
+    const connection = await member.voice.channel.join()
+    connection.play('./audio.ogg', { volume: 1 })
+
+    channel.send(`▶ Son en cours ➜ **${ command }** ajouté par **${ author }**`)
+  }
+
   if (content === '!jungle help') return channel.send(`
     ℹ Pour ajouter des sons, rendez-vous ici : https://jungle-soundbot.netlify.app`
   )
@@ -27,22 +39,20 @@ const messageHandler = async ({ content, member, channel }) => {
     )
   }
 
+  if (content === '!jungle random') {
+    const apiResponse = await fetch(`${ API_URL }/sounds`)
+    const json = await apiResponse.json()
+    const sound = json[Math.floor(Math.random() * json.length)]
+    return playSound(sound)
+  }
+
   const request = content.replace('!jungle ', '')
   const apiResponse = await fetch(`${ API_URL }/${ request }`)
   const json = await apiResponse.json()
 
   if (!json.length) return channel.send('Aucun résulat 😥')
 
-  const [{ url, author, command }] = json
-  const cloudinaryResponse = await fetch(url)
-  const buffer = await cloudinaryResponse.buffer()
-  fs.writeFileSync('audio.ogg', buffer)
-
-  const connection = await member.voice.channel.join()
-  const dispatcher = connection.play('./audio.ogg', { volume: 1 })
-
-  channel.send(`▶ Son en cours ➜ **${ command }** ajouté par **${ author }**`)
-  // channel.send(`J'ai bien trouvé le son, mais je fais grève. Ciao!`)
+  playSound(json)
 }
 
 bot.on('message', message => message.content
