@@ -1,7 +1,7 @@
+import fs from 'fs'
 import Discord from 'discord.js'
 import dotenv from 'dotenv'
 import fetch from 'node-fetch'
-import fs from 'fs'
 
 dotenv.config()
 
@@ -40,7 +40,7 @@ const messageHandler = async ({ content, member, channel }) => {
   }
 
   if (content === '!jungle random') {
-    const apiResponse = await fetch(`${ API_URL }/sounds`)
+    const apiResponse = await fetch(API_URL)
     const json = await apiResponse.json()
     const sound = json[Math.floor(Math.random() * json.length)]
     return playSound(sound)
