@@ -1,6 +1,6 @@
-import fs from 'fs'
 import Discord from 'discord.js'
 import dotenv from 'dotenv'
+import fs from 'fs'
 import fetch from 'node-fetch'
 
 dotenv.config()
@@ -26,7 +26,7 @@ const messageHandler = async ({ content, member, channel }) => {
   }
 
   if (content === '!jungle help') return channel.send(`
-    ℹ Pour ajouter des sons, rendez-vous ici : https://jungle-soundbot.netlify.app`
+    ℹ Pour ajouter des sons, rendez-vous ici : https://jungle-soundbot-client-v2.vercel.app`
   )
 
   if(content === '!jungle list') {
