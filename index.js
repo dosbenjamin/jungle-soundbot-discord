@@ -1,7 +1,8 @@
-import Discord from 'discord.js'
+import { Client } from 'discord.js'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import fetch from 'node-fetch'
+import { joinVoiceChannel, createAudioPlayer, createAudioResource, StreamType } from '@discordjs/voice'
 
 dotenv.config()
 
@@ -10,19 +11,38 @@ const {
   DISCORD_TOKEN
 } = process.env
 
-const bot = new Discord.Client()
+const client = new Client({
+  intents: [
+    'GUILDS',
+    'MESSAGE_CONTENT',
+    'GUILD_MESSAGES',
+    'GUILD_VOICE_STATES',
+  ],
+})
 
-const messageHandler = async ({ content, member, channel }) => {
+const player = createAudioPlayer();
+
+const messageHandler = async ({ content, channel, member, guild }) => {
   const playSound = async sound => {
     const { url, author, command } = sound
     const cloudinaryResponse = await fetch(url)
     const buffer = await cloudinaryResponse.buffer()
     fs.writeFileSync('audio.ogg', buffer)
 
-    const connection = await member.voice.channel.join()
-    connection.play('./audio.ogg', { volume: 1 })
+    const connection = joinVoiceChannel({
+      channelId: member.voice.channel.id,
+      guildId: guild.id,
+      adapterCreator: guild.voiceAdapterCreator
+    })
 
-    channel.send(`▶ Son en cours ➜ **${ command }** ajouté par **${ author }**`)
+    const resource = createAudioResource('./audio.ogg', {
+      inputType: StreamType.OggOpus,
+    })
+
+    player.play(resource)
+    connection.subscribe(player)
+
+    channel.send(`▶ Son en cours ➜ **${command}** ajouté par **${author}**`)
   }
 
   if (content === '!jungle help') return channel.send(`
@@ -30,12 +50,12 @@ const messageHandler = async ({ content, member, channel }) => {
   )
 
   if(content === '!jungle list') {
-    const apiResponse = await fetch(`${ API_URL }`)
+    const apiResponse = await fetch(`${API_URL}`)
     const json = await apiResponse.json()
     const sounds = json.map(({ command }) => command)
 
     return channel.send(
-      `Liste des sons disponibles : \n${ sounds.join('\n') }`
+      `Liste des sons disponibles : \n${sounds.join('\n')}`
     )
   }
 
@@ -47,7 +67,7 @@ const messageHandler = async ({ content, member, channel }) => {
   }
 
   const request = content.replace('!jungle ', '')
-  const apiResponse = await fetch(`${ API_URL }/${ request }`)
+  const apiResponse = await fetch(`${API_URL}/${request}`)
   const json = await apiResponse.json()
 
   if (!json.length) return channel.send('Aucun résulat 😥')
@@ -55,7 +75,9 @@ const messageHandler = async ({ content, member, channel }) => {
   playSound(json[0])
 }
 
-bot.on('message', message => message.content
-  .startsWith('!jungle ') && messageHandler(message))
+client.on('messageCreate', message => {
+  message.content.startsWith('!jungle ') && messageHandler(message)
+})
 
-bot.login(DISCORD_TOKEN)
+
+client.login(DISCORD_TOKEN)
